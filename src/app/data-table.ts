@@ -6,7 +6,6 @@ import {
   debounceTime,
   delay,
   distinctUntilChanged,
-  map,
   of,
   startWith,
   switchMap,
@@ -15,18 +14,22 @@ import {
 
 type CellType = 'text' | 'number';
 type UserKey = 'name' | 'email' | 'age';
+
 interface ColumnDefinition {
   label: string;
   key: UserKey;
   cellType: CellType;
 }
+
 interface User {
   id: number;
   name: string;
   email: string;
   age: number;
 }
+
 type SortDirection = 'asc' | 'desc';
+
 interface SortState {
   key: UserKey | null;
   direction: SortDirection;
@@ -119,11 +122,13 @@ interface SortState {
 })
 export class DataTable {
   public Math = Math;
+
   public columns: ColumnDefinition[] = [
     { label: 'Name', key: 'name', cellType: 'text' },
     { label: 'Email', key: 'email', cellType: 'text' },
     { label: 'Age', key: 'age', cellType: 'number' },
   ];
+
   users: User[] = [
     { id: 1, name: 'Alice Johnson', email: 'alice@example.com', age: 28 },
     { id: 2, name: 'Bob Smith', email: 'bob@example.com', age: 34 },
@@ -134,20 +139,24 @@ export class DataTable {
     { id: 7, name: 'Grace Lee', email: 'grace@example.com', age: 29 },
     { id: 8, name: 'Henry Ford', email: 'henry@example.com', age: 33 },
   ];
+
   private search$ = new BehaviorSubject<string>('');
   private debouncedSearch$ = this.search$.pipe(
     debounceTime(300),
     distinctUntilChanged(),
     startWith(''),
   );
+
   public sort$ = new BehaviorSubject<SortState>({
     key: null,
     direction: 'asc',
   });
+
   public page$ = new BehaviorSubject<number>(1);
   public readonly pageSize = 5;
   public total$ = new BehaviorSubject<number>(0);
   public loading$ = new BehaviorSubject<boolean>(true);
+
   users$ = combineLatest([this.debouncedSearch$, this.sort$, this.page$]).pipe(
     switchMap(([term, sort, page]) => {
       const lower = term.toLowerCase();
@@ -183,13 +192,11 @@ export class DataTable {
 
       const result = filtered.slice(start, end);
 
-      // 🔥 set loading BEFORE async starts
       this.loading$.next(true);
 
       return of(result).pipe(
         delay(1000),
         tap(() => {
-          // 🔥 only finish AFTER emission completes
           this.loading$.next(false);
         }),
       );
@@ -199,7 +206,7 @@ export class DataTable {
   onSearch(event: Event) {
     const value = (event.target as HTMLInputElement).value;
     this.search$.next(value);
-    this.page$.next(1); // reset
+    this.page$.next(1);
   }
 
   onSort(key: UserKey) {
