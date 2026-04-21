@@ -36,7 +36,7 @@ interface SortState {
 }
 
 @Component({
-  selector: 'app-data-table',
+  selector: 'data-table-observables',
   imports: [CommonModule],
   template: `
     <input type="text" placeholder="Search..." (input)="onSearch($event)" />
@@ -120,7 +120,7 @@ interface SortState {
     }
   `,
 })
-export class DataTable {
+export class DataTableObservables {
   public Math = Math;
 
   public columns: ColumnDefinition[] = [
@@ -146,16 +146,14 @@ export class DataTable {
     distinctUntilChanged(),
     startWith(''),
   );
-
   public sort$ = new BehaviorSubject<SortState>({
     key: null,
     direction: 'asc',
   });
-
   public page$ = new BehaviorSubject<number>(1);
-  public readonly pageSize = 5;
   public total$ = new BehaviorSubject<number>(0);
   public loading$ = new BehaviorSubject<boolean>(true);
+  public readonly pageSize = 5;
 
   users$ = combineLatest([this.debouncedSearch$, this.sort$, this.page$]).pipe(
     switchMap(([term, sort, page]) => {
